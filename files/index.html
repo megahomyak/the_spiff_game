@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>The Spiff Game: introduction</title>
+        <style>
+            html {
+                background-color: black;
+                color: white;
+                display: flex;
+                justify-content: center;
+            }
+            body {
+                max-width: 600px;
+                font-family: sans-serif;
+                font-weight: bold;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                text-align: center;
+                flex-direction: column;
+            }
+            h1 {
+                margin: 30px;
+            }
+            #play_button {
+                padding: 20px;
+                margin: 50px 0;
+                background-color: white;
+                text-decoration: none;
+                text-transform: uppercase;
+            }
+            #comic_pages {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+            #comic_pages > img {
+                image-rendering: pixelated;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>The Spiff Game: introduction</h1>
+        <div id="comic_pages">
+            <img src="comic_pages/1.png" alt="123">
+            <img src="comic_pages/1.png" alt="456">
+        </div>
+        <a href="game.html" id="play_button">Play the game</a>
+    </body>
+</html>
