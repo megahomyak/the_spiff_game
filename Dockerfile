@@ -1,4 +1,4 @@
-FROM megahomyak/dum:v3 AS development
+FROM megahomyak/dum:v4 AS development
 WORKDIR /app
 CMD []
 
