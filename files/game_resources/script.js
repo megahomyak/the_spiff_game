@@ -32,7 +32,7 @@ function writeText(fontSize, text, x, y) {
 writeText(48, "Loading...", 20, 110);
 
 function drawImage(path, x, y) {
-    return Promise((resolve, reject) => {
+    return new Promise((resolve, reject) => {
         let image = new Image();
         image.addEventListener("load", () => {
             ctx.drawImage(image, x, y);
