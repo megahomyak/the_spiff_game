@@ -4,20 +4,25 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>The Spiff Game</title>
-        <style>
-            body, html {
-                height: 100%;
-                background-color: black;
-            }
-            body {
-                max-width: 600px;
-            }
-            button {
-                background-image: linear-gradient(yellow, gray);
-            }
-        </style>
+        <link rel="stylesheet" href="game_resources/styles.css">
     </head>
     <body>
-
+        <canvas id="canvas" width="260" height="195">Enable HTML canvas support, please. And JS as well</canvas>
+        <table id="controls">
+            <tbody>
+                <tr>
+                    <th><button id="spin">Spin</button></th>
+                    <th><button id="spoon">Spoon</button></th>
+                    <th><button id="spank">Spank</button></th>
+                </tr>
+                <tr>
+                    <th><button id="sprint">Sprint</button></th>
+                    <th><button id="spend">Spend</button></th>
+                    <th><button id="speedrun">Speedrun</button></th>
+                </tr>
+            </tbody>
+        </table>
+        <button id="reset_game">Reset the game</button>
+        <script src="game_resources/script.js"></script>
     </body>
 </html>
