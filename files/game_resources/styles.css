@@ -2,18 +2,11 @@ button {
     background: linear-gradient(#ffff4d, orange);
     border: none;
     border-radius: 10px;
-    padding: 10px;
     font-weight: bold;
     text-transform: uppercase;
-    white-space: normal;
 }
-
 button:active {
     background: orange;
-}
-
-#controls button {
-    width: 100%;
 }
 
 html {
@@ -27,17 +20,40 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin: 0;
+    width: min(100vw, calc(100vh/(4/3)));
+    height: min(100vh, calc(100vw/(3/4)));
 }
 
-#restart_game {
-    margin-top: 30px;
+#canvas {
+    image-rendering: pixelated;
+    width: 100%;
+    flex-grow: 0;
 }
 
 #controls {
     margin-top: 15px;
-    table-layout: fixed;
+    width: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
 }
 
-#canvas, #controls {
-    width: min(300px, 100vw);
+#controls .row {
+    width: 100%;
+    flex-direction: row;
+    display: flex;
+    flex: 1 1 0px;
+}
+#controls button {
+    padding: 10px 0px;
+    flex: 1 1 0px;
+    margin: 3px;
+}
+
+#restart_game {
+    margin-top: 30px;
+    flex-grow: 0;
+    margin-bottom: 15px;
+    padding: 10px;
 }

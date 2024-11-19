@@ -1,5 +1,42 @@
-let imagesToLoad = ["blah.png"];
+let imagesToLoad = ["../../comic_pages/1.png"];
 let soundsToLoad = [];
+
+let locations = {
+    checkingInstructions: {
+        render: async () => {
+            await drawImage("../../comic_pages/1.png", 0, 0);
+        },
+        spin: async () => {
+            prompt("spin");
+        },
+        spoon: async () => {
+            prompt("spoon");
+        },
+        spank: async () => {
+            prompt("spank");
+        },
+        sprint: async () => {
+            prompt("sprint");
+        },
+        spend: async () => {
+            prompt("spend");
+        },
+        speedrun: async () => {
+            prompt("speerun");
+        },
+    },
+};
+let location_ = null;
+
+let state = localStorage.getItem("state");
+if (state === null) {
+    state = {currentPosition: "checkingInstructions"};
+} else {
+    state = JSON.parse(state);
+}
+function commit() {
+    localStorage.setItem("state", JSON.stringify(state));
+}
 
 function preloadImage(filePath) {
     let image = new Image();
@@ -43,12 +80,25 @@ function drawImage(path, x, y) {
     });
 }
 
+function switchLocation(locationName) {
+    state.currentPosition = locationName;
+    commit();
+    location_ = locations[locationName];
+    (async function() {
+        await location_.render();
+    })();
+}
+
+function runGame() {
+    switchLocation(state.currentPosition);
+}
+
 let assetsLoaded = 0;
 function assetLoaded() {
+    ++assetsLoaded;
     if (imagesToLoad.length + soundsToLoad.length == assetsLoaded) {
         runGame();
     }
-    ++assetsLoaded;
 }
 function assetFailedToLoad() {
     resetCanvas();
@@ -59,8 +109,8 @@ function assetFailedToLoad() {
 }
 
 for (image of imagesToLoad) {
-    preloadImage(image);
+    preloadImage("game_resources/images/" + image);
 }
 for (sound of soundsToLoad) {
-    preloadSound(sound);
+    preloadSound("game_resources/sounds/" + sound);
 }
