@@ -1,4 +1,4 @@
-let imagesToLoad = ["../../comic_pages/1.png"];
+let imagesToLoad = ["../../comic_pages/1.png", "../../comic_pages/2.png"];
 let soundsToLoad = [];
 
 let locations = {
@@ -7,7 +7,30 @@ let locations = {
             await drawImage("../../comic_pages/1.png", 0, 0);
         },
         spin: async () => {
-            confirm("spin");
+            switchLocation("checkingInstructions2");
+        },
+        spoon: async () => {
+            confirm("spoon");
+        },
+        spank: async () => {
+            confirm("spank");
+        },
+        sprint: async () => {
+            confirm("sprint");
+        },
+        spend: async () => {
+            confirm("spend");
+        },
+        speedrun: async () => {
+            confirm("speerun");
+        },
+    },
+    checkingInstructions2: {
+        render: async () => {
+            await drawImage("../../comic_pages/2.png", 0, 0);
+        },
+        spin: async () => {
+            switchLocation("checkingInstructions");
         },
         spoon: async () => {
             confirm("spoon");
