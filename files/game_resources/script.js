@@ -7,30 +7,34 @@ let locations = {
             await drawImage("../../comic_pages/1.png", 0, 0);
         },
         spin: async () => {
-            prompt("spin");
+            confirm("spin");
         },
         spoon: async () => {
-            prompt("spoon");
+            confirm("spoon");
         },
         spank: async () => {
-            prompt("spank");
+            confirm("spank");
         },
         sprint: async () => {
-            prompt("sprint");
+            confirm("sprint");
         },
         spend: async () => {
-            prompt("spend");
+            confirm("spend");
         },
         speedrun: async () => {
-            prompt("speerun");
+            confirm("speerun");
         },
     },
 };
 let location_ = null;
 
+function generateDefaultState() {
+    return {currentPosition: "checkingInstructions"};
+}
+
 let state = localStorage.getItem("state");
 if (state === null) {
-    state = {currentPosition: "checkingInstructions"};
+    state = generateDefaultState();
 } else {
     state = JSON.parse(state);
 }
@@ -79,18 +83,26 @@ function drawImage(path, x, y) {
         image.src = path;
     });
 }
+function playAudio(path) {
+    var audio = new Audio(path);
+    audio.play();
+}
 
 function switchLocation(locationName) {
     state.currentPosition = locationName;
     commit();
-    location_ = locations[locationName];
+    showCurrentState();
+}
+
+function showCurrentState() {
+    location_ = locations[state.currentPosition];
     (async function() {
         await location_.render();
     })();
 }
 
 function runGame() {
-    switchLocation(state.currentPosition);
+    showCurrentState();
 }
 
 let assetsLoaded = 0;
@@ -108,9 +120,28 @@ function assetFailedToLoad() {
     writeText(20, "about it.", 150, 140);
 }
 
-for (image of imagesToLoad) {
+for (let image of imagesToLoad) {
     preloadImage("game_resources/images/" + image);
 }
-for (sound of soundsToLoad) {
+for (let sound of soundsToLoad) {
     preloadSound("game_resources/sounds/" + sound);
 }
+
+for (let id of ["spin", "spoon", "spank", "sprint", "spend", "speedrun"]) {
+    document.getElementById(id).addEventListener("click", () => {
+        if (location_) {
+            let handler = location_[id];
+            if (handler) {
+                handler();
+            }
+        }
+    });
+}
+
+document.getElementById("restart_game").addEventListener("click", () => {
+    if (confirm("U sure?")) {
+        state = generateDefaultState();
+        commit();
+        showCurrentState();
+    }
+});
