@@ -1,5 +1,12 @@
 let imagesToLoad = ["../../comic_pages/1.png", "../../comic_pages/2.png"];
-let soundsToLoad = [];
+let soundsToLoad = ["spin.oga"];
+
+function normalizeImagePath(path) {
+    return "game_resources/images/" + path;
+}
+function normalizeSoundPath(path) {
+    return "game_resources/sounds/" + path;
+}
 
 let locations = {
     checkingInstructions: {
@@ -7,6 +14,7 @@ let locations = {
             await drawImage("../../comic_pages/1.png", 0, 0);
         },
         spin: async () => {
+            playAudio("spin.oga");
             switchLocation("checkingInstructions2");
         },
         spoon: async () => {
@@ -30,6 +38,7 @@ let locations = {
             await drawImage("../../comic_pages/2.png", 0, 0);
         },
         spin: async () => {
+            playAudio("spin.oga");
             switchLocation("checkingInstructions");
         },
         spoon: async () => {
@@ -96,6 +105,7 @@ function writeText(fontSize, text, x, y) {
 writeText(48, "Loading...", 20, 110);
 
 function drawImage(path, x, y) {
+    path = normalizeImagePath(path);
     return new Promise((resolve, reject) => {
         let image = new Image();
         image.addEventListener("load", () => {
@@ -107,6 +117,7 @@ function drawImage(path, x, y) {
     });
 }
 function playAudio(path) {
+    path = normalizeSoundPath(path);
     var audio = new Audio(path);
     audio.play();
 }
@@ -143,11 +154,11 @@ function assetFailedToLoad() {
     writeText(20, "about it.", 150, 140);
 }
 
-for (let image of imagesToLoad) {
-    preloadImage("game_resources/images/" + image);
+for (let path of imagesToLoad) {
+    preloadImage(normalizeImagePath(path));
 }
-for (let sound of soundsToLoad) {
-    preloadSound("game_resources/sounds/" + sound);
+for (let path of soundsToLoad) {
+    preloadSound(normalizeSoundPath(path));
 }
 
 for (let id of ["spin", "spoon", "spank", "sprint", "spend", "speedrun"]) {
