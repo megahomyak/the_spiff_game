@@ -8,6 +8,12 @@ function normalizeSoundPath(path) {
     return "game_resources/sounds/" + path;
 }
 
+function reality(background, handler) {
+    return async () => {
+        await drawImage("../../comic_pages/1.png", 0, 0);
+    };
+}
+
 let locations = {
     checkingInstructions: {
         render: async () => {
@@ -16,9 +22,6 @@ let locations = {
         spin: async () => {
             playAudio("spin.oga");
             switchLocation("checkingInstructions2");
-        },
-        spoon: async () => {
-            confirm("spoon");
         },
         spank: async () => {
             confirm("spank");
