@@ -4,7 +4,9 @@ introduction (
         description ()
     )
 )
-first location (test1)
+code (
+    goto (test1)
+)
 locations (
     test1 (
         background ()
