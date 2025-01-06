@@ -1,0 +1,115 @@
+Let's plan
+
+Rendering:
+* Images:
+    * Images on top of images, all with sharp pixels
+    * Coordinates in some universal system
+    * Maybe no separation of bg from other stuff since the bg is just a sprite drawn from (0;0) to (end;end)
+    * Probably (1;1) for (end;end)
+* Same size and aspect ratio of screen at all times to have an easy system (so, basically, always the same rectangular part of the player's device's screen is responsible for the rendering area)
+
+UI:
+* Buttons never change
+* The rendering space is already discussed above
+* Stats below are... stats below, they're below, doesn't matter. They will be accessed once per nothing, may even be accessed never
+
+Inputs and outputs:                                                                                                                      
+* Inputs:                                                                                                                                
+    * Buttons                                                                                                                            
+* Outputs:
+    * Visuals
+    * Sounds
+{
+* Outputs only change on button presses
+* Sounds only play on button presses
+} => {
+* Any state change comes only from a player action that happened just now, and the state change is immediate
+}
+
+== More convoluted stuff! ==
+
+Rendering awake locations (sprites in order):
+* Background
+* Location stuff (delegated to location renderer; not just some predefined sprites, but some arbitrary logic, such as for placing boxes)
+* Giant spoon (if an item is held atm)
+* The item in the spoon (on the sprite of the spoon), always in the same location (or maybe just slightly different, I might tie the coordinates to each individual item; if an item is held atm)
+
+Rendering nightmare locations (sprites in order):
+* Background
+* Location stuff (delegated to location renderer; not just some predefined sprites, but some arbitrary logic, such as for placing boxes)
+
+Simplifying the above, we get:
+1. example_awake_location_renderer(ctx) {
+    render_background(ctx, "background.png"); // Mandatory
+    if (ctx->something) {
+        render_sprite(ctx, "sprite.png", {0.123, 0.456}, {0.789, 0.123});
+    }
+    render_spoon(ctx); // Mandatory; will render the spoon and the item in it
+}
+2. example_nightmare_location_renderer(ctx) {
+    render_background(ctx, "background.png"); // Mandatory
+    if (ctx->something) {
+        render_sprite(ctx, "sprite.png", {0.123, 0.456}, {0.789, 0.123});
+    }
+}
+=>
+1. example_awake_location_renderer = make_awake_renderer("background.png", (ctx) => {
+    if (ctx->something) {
+        render_sprite(ctx, "sprite.png", {0.123, 0.456}, {0.789, 0.123});
+    }
+});
+2. example_awake_location_renderer = make_nightmare_renderer("background.png", (ctx) => {
+    if (ctx->something) {
+        render_sprite(ctx, "sprite.png", {0.123, 0.456}, {0.789, 0.123});
+    }
+});
+
+Since I'm painting the background again and again each time, I might just never reset the canvas to anything. Like, it will still be overwritten sooner or later <- THAT'S ONLY IF I PAINT IT ON A CANVAS OF A PREDEFINED SIZE, BUT IF I'M PAINTING WITH HTML OR SVG ELEMENTS OR SOME OTHER IMAGES JUST FLOATING IN AN ANALOG(-ish) SPACE, I WILL HAVE TO CLEAN THEM ALL BEFORE PAINTING THE NEW LOCATION. WHETHER THE CANVAS IS CLEARED OR NOT BEFORE ANY NEW PAINTING MUST BE IMPLEMENTATION-SPECIFIC, WITH WELL-WRITTEN RENDER HANDLERS IT WON'T MATTER FOR THE PLAYER ANYWAY
+
+== Essential APIs for the game ==
+
+* The canvas:
+    * draw(image_path, corner1_unit_coordinates, corner2_unit_coordinates)
+        * draw("background.png", (0,0), (1,1))
+        * draw("box.png", (0.3, 0.5), (0.7, 0.9))
+* Framework-ish locations:
+    * Each location is just a {render_handler, {spin_handler, spank_handler, ..., speedrun_handler}}
+        * The handlers that are not doing anything should either be dummy functions that do nothing or special values that signify there's nothing (of course, such values should have according treatment if they will be present)
+    * Each location button handler should either return the next location or nothing. Might just return the same location as a dummy response, though, if we're simplifying, but that's gonna be pretty costly because of rerenders and RAM usage. Probably the return should be done through an invocation of "switch_location(&new_location)" or something like that
+    * There should be the very first location to start at (the default location; the game gotta start somewhere) - probably just implemented through the current location being part of the config (="state", ="context"?) and the config should be filled
+* Sounds:
+    * play(sound_path)
+        * play("scream.oga")
+
+== Spin sounds and other frequent sounds ==
+
+Like with wrapping location renderers in debloaters (like this:
+```
+example_awake_location_renderer(ctx) {
+    render_background(ctx, "background.png");
+    if (ctx->something) {
+        render_sprite(ctx, "sprite.png", {0.123, 0.456}, {0.789, 0.123});
+    }
+    render_spoon(ctx);
+}
+```
+->
+```
+example_awake_location_renderer = make_awake_renderer("background.png", (ctx) => {
+    if (ctx->something) {
+        render_sprite(ctx, "sprite.png", {0.123, 0.456}, {0.789, 0.123});
+    }
+});
+```
+), button handlers can also be wrapped (like this:
+```
+example_spin_handler(ctx) {
+    play(ctx, "spin.oga");
+    switch_location(ctx, &other_location);
+}
+```
+->
+```
+example_spin_handler = make_spin_handler(other_location);
+```
+)
