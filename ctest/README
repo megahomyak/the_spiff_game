@@ -1,1 +1,5 @@
 This is a test of game implementation concepts I currently have in mind. In C to keep it as barebones as I can atm, since I want my mind to encompass the entire (=complete) implementation, I don't want to get lost in complicated specifics ("features") of more high-level programming languages
+
+== Simplifying this code with some JS conveniences: ==
+
+Non-present button handlers can be marked with non-present object attributes. Will be pretty handy. Same for spooned items: if no item is spooned, it can just be "null" or "undefined"

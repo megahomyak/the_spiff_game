@@ -68,6 +68,7 @@ void handle_button_press(struct ctx* ctx, struct button_handler* handler) {
     if (handler->exists) {
         handler->function(ctx);
         if (ctx->world_changed) {
+            /* save_world_into_permanent_storage(ctx); */
             render_world(ctx);
         }
     }
