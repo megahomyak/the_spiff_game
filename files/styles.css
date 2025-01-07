@@ -1,3 +1,5 @@
+/* Global: */
+
 html {
     background-color: black;
     color: white;
@@ -14,12 +16,8 @@ html, body {
     align-items: center;
 }
 
-.introduction body {
-    gap: 10px;
-}
-
 body {
-    max-width: 600px;
+    width: min(600px, 100%);
 }
 
 .hyperlink-button {
@@ -30,4 +28,59 @@ body {
     width: fit-content;
     color: black;
     font-weight: bold;
+}
+
+/* Introduction: */
+
+.introduction body {
+    gap: 10px;
+}
+
+/* Game: */
+
+.game #playboy {
+    padding-bottom: calc(min(100%, 90vh) / 16 * 12);
+    width: min(100%, 90vh);
+    position: relative;
+    align-items: center;
+}
+
+.game #playboy > * {
+    position: absolute;
+}
+
+.game #playboy #screen {
+    width: 100%;
+    height: calc(100%/12*9);
+}
+
+.game #playboy .controls {
+    top: calc(100%/12*9 + 10px);
+    height: calc(100%/12*3 - 10px);
+    gap: 5px;
+}
+
+.game #playboy .row {
+    flex-direction: row;
+    flex: 1 1 0;
+    gap: 5px;
+}
+
+.game #playboy .row button {
+    flex: 1 1 0;
+    font-size: large;
+    display: inline-block;
+}
+
+.game .reset-button {
+    padding: 10px;
+    margin-top: 20px;
+}
+
+.game button {
+    font-weight: bold;
+    background: linear-gradient(#ffff4d, orange);
+    border: none;
+    border-radius: 10px;
+    text-transform: uppercase;
 }
