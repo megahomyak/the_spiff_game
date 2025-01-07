@@ -2,26 +2,24 @@ html {
     background-color: black;
     color: white;
     font-family: sans-serif;
+    text-align: center;
 }
 
-.introduction body *, .introduction body {
+body *, body, html {
     display: flex;
     flex-direction: column;
 }
 
-html.introduction {
-    display: flex;
-    justify-content: center;
-}
-
-body {
+html, body {
     align-items: center;
-    text-align: center;
 }
 
 .introduction body {
-    max-width: 600px;
     gap: 10px;
+}
+
+body {
+    max-width: 600px;
 }
 
 .hyperlink-button {
