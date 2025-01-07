@@ -1,4 +1,4 @@
-/* Global: */
+/* Shared: */
 
 html {
     background-color: black;
@@ -58,18 +58,13 @@ body {
     top: calc(100%/12*9 + 10px);
     height: calc(100%/12*3 - 10px);
     gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
 }
 
-.game #playboy .row {
-    flex-direction: row;
-    flex: 1 1 0;
-    gap: 5px;
-}
-
-.game #playboy .row button {
-    flex: 1 1 0;
+.game #playboy .controls button {
     font-size: large;
-    display: inline-block;
 }
 
 .game .reset-button {
@@ -83,4 +78,9 @@ body {
     border: none;
     border-radius: 10px;
     text-transform: uppercase;
+    display: inline-block;
+}
+
+.game button:active {
+    background: orange;
 }
