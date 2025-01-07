@@ -1,0 +1,1 @@
+Why an HTML area with <img> inside and not a bunch of SVGs? - because of screen readers. I can put an "alt" on an <img>. Will my game actually be much more easily accessible for blind people or for people with bad eyesight? :eyes:
