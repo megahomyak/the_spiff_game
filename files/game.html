@@ -7,18 +7,23 @@
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <div id="playboy">
-            <div id="screen"></div>
-            <div class="controls">
-                <button id="spin">Spin</button>
-                <button id="spoon">Spoon</button>
-                <button id="spank">Spank</button>
-                <button id="sprint">Sprint</button>
-                <button id="spend">Spend</button>
-                <button id="speedrun">Speedrun</button>
+        <p id="loading"></p>
+        <div id="loaded" style="display:none">
+            <div id="playboy">
+                <div id="screen">
+                    <img id="background">
+                </div>
+                <div class="controls">
+                    <button id="spin">Spin</button>
+                    <button id="spoon">Spoon</button>
+                    <button id="spank">Spank</button>
+                    <button id="sprint">Sprint</button>
+                    <button id="spend">Spend</button>
+                    <button id="speedrun">Speedrun</button>
+                </div>
             </div>
+            <button class="reset-button">Reset game progress</button>
         </div>
-        <button class="reset-button">Reset game progress</button>
         <script src="game.js"></script>
     </body>
 </html>
