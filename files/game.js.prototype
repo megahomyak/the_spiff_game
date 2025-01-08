@@ -1,17 +1,24 @@
-Sound {
+sound() {
     play() - plays the sound
 }
 
-Output {
-    screen {
-        (void) draw(list of images with coordinates) - redraws the scene with the specified images
+image() {
+    unit_interval top()
+    unit_interval bottom()
+    unit_interval left()
+    unit_interval right()
+    string 
+}
+
+engine_context() {
+    screen() {
+        draw(list<image>) - redraws the scene with the specified images
     }
-    audio {
-        (Sound) preload(sound name) - preloads a sound with the specified name
+    audio() {
+        (sound) preload(sound name) - preloads a sound with the specified name
     }
 }
 
-Engine {
-    -> (Output) output
+engine(engine context) {
 
 }
