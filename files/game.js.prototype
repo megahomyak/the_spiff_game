@@ -1,24 +1,15 @@
-sound() {
-    play() - plays the sound
+engine._render world {
+let regions = []
+ctx.curloc().render(draw=(region) => {
+regions.push(region)
+})
+output.draw(ctx.curloc().bg, regions)
 }
 
-image() {
-    unit_interval top()
-    unit_interval bottom()
-    unit_interval left()
-    unit_interval right()
-    string 
-}
+engine.handle interaction {
+ctx.curloc()[args.interaction](play sound=(sound) => {
 
-engine_context() {
-    screen() {
-        draw(list<image>) - redraws the scene with the specified images
-    }
-    audio() {
-        (sound) preload(sound name) - preloads a sound with the specified name
-    }
-}
+}, switch location=(new location name) => {
 
-engine(engine context) {
-
+})
 }
