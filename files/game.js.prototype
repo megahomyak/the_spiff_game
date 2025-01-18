@@ -1,15 +1,22 @@
-engine._render world {
-let regions = []
-ctx.curloc().render(draw=(region) => {
-regions.push(region)
-})
-output.draw(ctx.curloc().bg, regions)
-}
+.comment(
+`.name()` is a function invocation. Invokes the function with what's in the parentheses being passed in as a string
+two maps: variables (mut){str:str} and functions (const){str:callable(str)}. The names of all the variables can be traced by looking at all invocations of ".name", and are a constant set for each individual program. This means that a compiler can be written, but beforehand all functions need to be segregated into two categories: functions that accept program strings and functions that accept plain strings. Probably should also think about functions that accept varnames... and then goes the inner usage... oh shi... but actually, the inner usage should never get into the variables dict at all, except for any function that explicitly goes there (like .name(arst).copy from(qwer)). Yeah, no inner usage, but a "functions that accept varnames" category will be necessary
+`.exec(varname)` to execute a string from varname
+)
 
-engine.handle interaction {
-ctx.curloc()[args.interaction](play sound=(sound) => {
+.loc(test1)
+.render(
+.name(bg).set(somebg.png)
+.bg(bg)
+)
+.loc(
+    .name(test1)
+    bg (
+        if () then (
 
-}, switch location=(new location name) => {
+        )
+    )
+    obj (
 
-})
-}
+    )
+)
