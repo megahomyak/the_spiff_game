@@ -6,8 +6,16 @@ two maps: variables (mut){str:str} and functions (const){str:callable(str)}. The
 
 .loc(test1)
 .render(
-.name(bg).set(somebg.png)
-.bg(bg)
+.if(varname).then(prog)
+.else(prog)
+.while(varname).do(prog)
+.bg(somebg.png)
+.name(varname).setstr(str)
+.name(varname).setprog(prog)
+.exec(varname)
+.comment(
+What's important: separating variables with strings and with programs attached. Probably also adding references through varname->varname, but that will also require the type to be attached... Unfortunate... This thing turns very big, unfortunately
+)
 )
 .loc(
     .name(test1)

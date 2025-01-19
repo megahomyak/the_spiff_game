@@ -1,9 +1,34 @@
 import os, json
 
-used_functions = []
+"""
+Output structure:
+{
+    used_functions: [
+        {
+            index: 0,
+            name: ""
+        }
+    ],
+    variables_amount: 0,
+    main_program_instructions: [
+        {
+            fnname: "",
+            arg: {
+                type: "string" | "variable" | "subprogram",
+            }
+        }
+    ],
+    subprograms: [
+        [
+            // Same as /main_program
+        ]
+    ]
+}
+"""
+
 program = []
 
-variable_map = {}
+variable_to_index = {}
 
 function_config_path = os.environ["FUNCTION_CONFIG_PATH"]
 function_config = json.load(open(function_config_path))
