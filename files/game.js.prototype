@@ -15,6 +15,8 @@ two maps: variables (mut){str:str} and functions (const){str:callable(str)}. The
 .exec(varname)
 .comment(
 What's important: separating variables with strings and with programs attached. Probably also adding references through varname->varname, but that will also require the type to be attached... Unfortunate... This thing turns very big, unfortunately
+
+upd: I won't need references because program references can act as freeform references
 )
 )
 .loc(
