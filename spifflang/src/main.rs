@@ -1,31 +1,35 @@
-mod und {
-    pub type Index = usize;
+pub type Index = usize;
 
-    pub type Text = Vec<Char>;
+mod und {
+    use super::*;
+
+    pub struct Text {
+        pub first: Char,
+        pub rest: Vec<Char>,
+    }
 
     pub struct Char {
-        value: char,
-        is_escaped: bool,
+        pub index: Index,
+        pub value: char,
+        pub is_escaped: bool,
     }
 
-    pub struct Node {
-        kind: NodeKind,
-        index: Index,
-    }
-
-    pub enum NodeKind {
+    pub enum Node {
         Group(Group),
         Text(Text),
     }
 
     pub struct Result {
-        escape_at_end: bool,
-        unexpected_closers: Vec<Index>,
-        unclosed_openers: Vec<Index>,
-        root: Group,
+        pub escape_at_end: bool,
+        pub unexpected_closers: Vec<Index>,
+        pub unclosed_openers: Vec<Index>,
+        pub root: Group,
     }
 
-    pub type Group = Vec<Node>;
+    pub struct Group {
+        pub index: Index,
+        pub contents: Vec<Node>,
+    }
 
     struct Overlay {
         index: Index,
@@ -37,24 +41,41 @@ mod und {
         overlays: Vec<Overlay>,
     }
 
-    fn get_top(layers: &mut Layers) -> &mut Group {
+    fn get_top(layers: &mut Layers) -> &mut Vec<Node> {
         match layers.overlays.last_mut() {
-            Some(overlay) => &mut overlay.group,
-            None => &mut layers.root,
+            Some(overlay) => &mut overlay.group.contents,
+            None => &mut layers.root.contents,
         }
+    }
+
+    fn push_char(text: &mut MaybeEmptyText, c: Char) {
+        if text.first.is_none() {
+            text.first = Some(c);
+        } else {
+            text.rest.push(c);
+        }
+    }
+
+    fn make_text() -> MaybeEmptyText {
+        MaybeEmptyText { first: None, rest: Vec::new() }
+    }
+
+    struct MaybeEmptyText {
+        first: Option<Char>,
+        rest: Vec<Char>,
     }
 
     pub fn parse(input: &str) -> Result {
         let mut layers = Layers {
             overlays: Vec::new(),
-            root: Vec::new(),
+            root: Group { index: 0, contents: Vec::new() },
         };
 
         let mut input_next_index = 0;
         let mut input_current_index = 0;
 
         let mut text_index = 0;
-        let mut text_buffer = Vec::new();
+        let mut text_buffer = MaybeEmptyText { first: None, rest: Vec::new() };
 
         let mut unexpected_closers = Vec::new();
         let mut unclosed_openers = Vec::new();
@@ -70,7 +91,8 @@ mod und {
                 input_next_index += c.len_utf8();
                 if is_escaped {
                     is_escaped = false;
-                    text_buffer.push(Char {
+                    push_char(&mut text_buffer, Char {
+                        index: input_current_index,
                         is_escaped: true,
                         value: c,
                     });
@@ -80,12 +102,12 @@ mod und {
             match c_option {
                 Some('\\') => is_escaped = true,
                 None | Some('(') | Some(')') => {
-                    if !text_buffer.is_empty() {
-                        get_top(&mut layers).push(Node {
-                            kind: NodeKind::Text(text_buffer),
-                            index: text_index,
-                        });
-                        text_buffer = Vec::new();
+                    if let Some(first) = text_buffer.first {
+                        get_top(&mut layers).push(Node::Text(Text {
+                            first,
+                            rest: text_buffer.rest,
+                        }));
+                        text_buffer = MaybeEmptyText { first: None, rest: Vec::new() };
                     }
                     text_index = input_next_index;
                     if c_option == Some('(') {
@@ -108,7 +130,7 @@ mod und {
                                 }
                                 get_top(&mut layers).push(Node {
                                     index: overlay.index,
-                                    kind: NodeKind::Group(overlay.group),
+                                    kind: Node::Group(overlay.group),
                                 })
                             }
                         }
@@ -130,6 +152,54 @@ mod und {
     }
 }
 
+mod pon {
+    use super::*;
+
+    pub struct Name {
+        words: Vec<String>,
+    }
+
+    pub enum NodeKind {
+        Group(und::Group),
+        Name(Name),
+    }
+
+    pub struct Node {
+        kind: NodeKind,
+        index: Index,
+    }
+
+    pub fn convert(und: und::Group) -> Vec<Node> {
+        let mut nodes = Vec::new();
+        for node in und {
+            match node.kind {
+                und::Node::Group(group) => nodes.push(group),
+                und::Node::Text(text) => {
+                    let mut text = text.into_iter();
+                    let mut current_word = String::new();
+                    let mut name_index = None;
+                    loop {
+                        match text.next() {
+                            None | Some(c) if c.value.is_whitespace() {
+
+                            }
+                            Some(c) {
+                                if name_index.is_none() {
+                                    name_index = Some(node.)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+mod spiff {
+
+}
+
 fn main() {
-    println!("Hello, world!");
+
 }
