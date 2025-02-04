@@ -30,52 +30,55 @@ mod und {
         pub index: Index,
         pub contents: Vec<Node>,
     }
+    impl Group {
+        fn new(index: usize) -> Self {
+            Group {
+                contents: Vec::new(),
+                index,
+            }
+        }
+    }
 
-    struct Overlay {
-        index: Index,
-        group: Group,
+    struct MaybeText {
+        first: Option<Char>,
+        rest: Vec<Char>,
+    }
+    impl MaybeText {
+        fn new() -> Self {
+            Self {
+                first: None,
+                rest: Vec::new(),
+            }
+        }
+        fn push(&mut self, c: Char) {
+            if self.first.is_none() {
+                self.first = Some(c);
+            } else {
+                self.rest.push(c);
+            }
+        }
     }
 
     struct Layers {
         root: Group,
-        overlays: Vec<Overlay>,
+        overlays: Vec<Group>,
     }
-
-    fn get_top(layers: &mut Layers) -> &mut Vec<Node> {
-        match layers.overlays.last_mut() {
-            Some(overlay) => &mut overlay.group.contents,
-            None => &mut layers.root.contents,
+    impl Layers {
+        fn get_top(&mut self) -> &mut Vec<Node> {
+            match self.overlays.last_mut() {
+                Some(overlay) => &mut overlay.contents,
+                None => &mut self.root.contents,
+            }
         }
     }
 
-    fn push_char(text: &mut MaybeEmptyText, c: Char) {
-        if text.first.is_none() {
-            text.first = Some(c);
-        } else {
-            text.rest.push(c);
-        }
-    }
-
-    fn make_text() -> MaybeEmptyText {
-        MaybeEmptyText { first: None, rest: Vec::new() }
-    }
-
-    struct MaybeEmptyText {
-        first: Option<Char>,
-        rest: Vec<Char>,
-    }
-
-    pub fn parse(input: &str) -> Result {
+    pub fn parse(mut input: impl Iterator<Item = (Index, char)>) -> Result {
         let mut layers = Layers {
             overlays: Vec::new(),
-            root: Group { index: 0, contents: Vec::new() },
+            root: Group::new(0),
         };
 
-        let mut input_next_index = 0;
-        let mut input_current_index = 0;
-
-        let mut text_index = 0;
-        let mut text_buffer = MaybeEmptyText { first: None, rest: Vec::new() };
+        let mut text = MaybeText::new();
 
         let mut unexpected_closers = Vec::new();
         let mut unclosed_openers = Vec::new();
@@ -83,60 +86,50 @@ mod und {
         let mut is_escaped = false;
 
         loop {
-            let c_option = unsafe { input.get_unchecked(input_next_index..) }
-                .chars()
-                .next();
-            if let Some(c) = c_option {
-                input_current_index = input_next_index;
-                input_next_index += c.len_utf8();
+            let c = input.next();
+            if let Some((index, c)) = c {
                 if is_escaped {
                     is_escaped = false;
-                    push_char(&mut text_buffer, Char {
-                        index: input_current_index,
+                    text.push(Char {
+                        index,
                         is_escaped: true,
                         value: c,
                     });
                     continue;
                 }
             }
-            match c_option {
-                Some('\\') => is_escaped = true,
-                None | Some('(') | Some(')') => {
-                    if let Some(first) = text_buffer.first {
-                        get_top(&mut layers).push(Node::Text(Text {
+            match c {
+                Some((_, '\\')) => is_escaped = true,
+                None | Some((_, '(')) | Some((_, ')')) => {
+                    if let Some(first) = text.first {
+                        layers.get_top().push(Node::Text(Text {
                             first,
-                            rest: text_buffer.rest,
+                            rest: text.rest,
                         }));
-                        text_buffer = MaybeEmptyText { first: None, rest: Vec::new() };
+                        text = MaybeText::new();
                     }
-                    text_index = input_next_index;
-                    if c_option == Some('(') {
-                        layers.overlays.push(Overlay {
-                            index: input_current_index,
-                            group: Vec::new(),
-                        })
+                    if let Some((index, '(')) = c {
+                        layers.overlays.push(Group::new(index));
                     } else {
                         match layers.overlays.pop() {
                             None => {
-                                if c_option == Some(')') {
-                                    unexpected_closers.push(input_current_index);
+                                if let Some((index, ')')) = c {
+                                    unexpected_closers.push(index);
                                 } else {
                                     break;
                                 }
                             }
                             Some(overlay) => {
-                                if c_option == None {
+                                if let None = c {
                                     unclosed_openers.push(overlay.index);
                                 }
-                                get_top(&mut layers).push(Node {
-                                    index: overlay.index,
-                                    kind: Node::Group(overlay.group),
-                                })
+                                layers.get_top().push(Node::Group(overlay));
                             }
                         }
                     }
                 }
-                Some(c) => text_buffer.push(Char {
+                Some((index, c)) => text.push(Char {
+                    index,
                     value: c,
                     is_escaped: false,
                 }),
@@ -155,51 +148,121 @@ mod und {
 mod pon {
     use super::*;
 
-    pub struct Name {
-        words: Vec<String>,
+    pub struct Word {
+        pub first: char,
+        pub rest: String,
     }
 
-    pub enum NodeKind {
+    struct FirstChar {
+        value: char,
+        index: Index,
+    }
+
+    struct MaybeWord {
+        first: Option<FirstChar>,
+        rest: String,
+    }
+    impl MaybeWord {
+        fn new() -> Self {
+            Self {
+                first: None,
+                rest: String::new(),
+            }
+        }
+    }
+
+    pub struct Name {
+        pub index: Index,
+        pub first: Word,
+        pub rest: Vec<Word>,
+    }
+
+    struct FirstWord {
+        value: Word,
+        index: Index,
+    }
+
+    struct MaybeName {
+        first: Option<FirstWord>,
+        rest: Vec<Word>,
+    }
+
+    pub enum Node {
         Group(und::Group),
         Name(Name),
     }
 
-    pub struct Node {
-        kind: NodeKind,
-        index: Index,
+    fn is_word_boundary(c: &und::Char) -> bool {
+        c.value.is_whitespace() && !c.is_escaped
     }
 
     pub fn convert(und: und::Group) -> Vec<Node> {
         let mut nodes = Vec::new();
-        for node in und {
-            match node.kind {
-                und::Node::Group(group) => nodes.push(group),
+        for node in und.contents.into_iter() {
+            match node {
+                und::Node::Group(group) => nodes.push(Node::Group(group)),
                 und::Node::Text(text) => {
-                    let mut text = text.into_iter();
-                    let mut current_word = String::new();
-                    let mut name_index = None;
+                    let mut rest = text.rest.into_iter();
+                    let mut name = MaybeName {
+                        first: None,
+                        rest: Vec::new(),
+                    };
+                    let mut word = MaybeWord::new();
+                    let mut current_char = text.first;
                     loop {
-                        match text.next() {
-                            None | Some(c) if c.value.is_whitespace() {
-
-                            }
-                            Some(c) {
-                                if name_index.is_none() {
-                                    name_index = Some(node.)
-                                }
+                        if !is_word_boundary(&current_char) {
+                            if word.first.is_none() {
+                                word.first = Some(FirstChar {
+                                    value: current_char.value,
+                                    index: current_char.index,
+                                });
+                            } else {
+                                word.rest.push(current_char.value);
                             }
                         }
+                        let mut next_char = rest.next();
+                        let ended = next_char.is_none();
+                        if is_word_boundary(&current_char) {
+                            next_char = None;
+                        }
+                        match next_char {
+                            None => {
+                                if let Some(first) = word.first {
+                                    let full_word = Word {
+                                        first: first.value,
+                                        rest: word.rest,
+                                    };
+                                    word = MaybeWord::new();
+                                    if name.first.is_none() {
+                                        name.first = Some(FirstWord {
+                                            index: first.index,
+                                            value: full_word,
+                                        });
+                                    } else {
+                                        name.rest.push(full_word);
+                                    }
+                                }
+                                if ended {
+                                    break;
+                                }
+                            }
+                            Some(next_char) => current_char = next_char,
+                        }
+                    }
+                    if let Some(first) = name.first {
+                        nodes.push(Node::Name(Name {
+                            first: first.value,
+                            rest: name.rest,
+                            index: first.index,
+                        }));
                     }
                 }
             }
         }
+        nodes
     }
 }
 
-mod spiff {
+mod spiff {}
 
-}
-
-fn main() {
-
-}
+fn main() {}
