@@ -1,24 +1,28 @@
 pub type Index = usize;
 
-mod und {
+mod und { // Finished
     use super::*;
 
+    #[derive(Debug)]
     pub struct Text {
         pub first: Char,
         pub rest: Vec<Char>,
     }
 
+    #[derive(Debug)]
     pub struct Char {
         pub index: Index,
         pub value: char,
         pub is_escaped: bool,
     }
 
+    #[derive(Debug)]
     pub enum Node {
         Group(Group),
         Text(Text),
     }
 
+    #[derive(Debug)]
     pub struct Result {
         pub escape_at_end: bool,
         pub unexpected_closers: Vec<Index>,
@@ -26,6 +30,7 @@ mod und {
         pub root: Group,
     }
 
+    #[derive(Debug)]
     pub struct Group {
         pub index: Index,
         pub contents: Vec<Node>,
@@ -145,9 +150,10 @@ mod und {
     }
 }
 
-mod pon {
+mod pon { // Bugged, see main() `print` outputs
     use super::*;
 
+    #[derive(Debug)]
     pub struct Word {
         pub first: char,
         pub rest: String,
@@ -171,6 +177,7 @@ mod pon {
         }
     }
 
+    #[derive(Debug)]
     pub struct Name {
         pub index: Index,
         pub first: Word,
@@ -187,6 +194,7 @@ mod pon {
         rest: Vec<Word>,
     }
 
+    #[derive(Debug)]
     pub enum Node {
         Group(und::Group),
         Name(Name),
@@ -265,4 +273,12 @@ mod pon {
 
 mod spiff {}
 
-fn main() {}
+fn main() {
+    let und = und::parse("test (ab\\c) \\(\\ ) def hi".char_indices());
+    dbg!(&und.root);
+    let pon = pon::convert(und.root);
+    dbg!(&und.escape_at_end);
+    dbg!(&und.unclosed_openers);
+    dbg!(&und.unexpected_closers);
+    dbg!(&pon);
+}
