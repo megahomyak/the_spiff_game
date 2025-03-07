@@ -7,7 +7,8 @@ pub struct Char {
     pub is_escaped: bool,
 }
 
-mod und { // Finished
+mod und {
+    // Finished
     use super::*;
 
     #[derive(Debug)]
@@ -150,7 +151,8 @@ mod und { // Finished
     }
 }
 
-mod pon { // Bugged, see main() `print` outputs
+mod pon {
+    // Bugged, see main() `print` outputs
     use super::*;
 
     #[derive(Debug)]
@@ -214,7 +216,7 @@ mod pon { // Bugged, see main() `print` outputs
                                     }
                                 }
                                 (is_word_boundary, false)
-                            },
+                            }
                             None => (true, true),
                         };
                         if is_word_boundary {
@@ -237,7 +239,10 @@ mod pon { // Bugged, see main() `print` outputs
                         current_char = text_rest.next();
                     }
                     if let Some(first) = name.first {
-                        nodes.push(Node::Name(Name { first, rest: name.rest }));
+                        nodes.push(Node::Name(Name {
+                            first,
+                            rest: name.rest,
+                        }));
                     }
                 }
             }
@@ -246,7 +251,9 @@ mod pon { // Bugged, see main() `print` outputs
     }
 }
 
-mod spiff {}
+mod spiff {
+
+}
 
 fn main() {
     let und = und::parse(r"test (ab\c) \(\ ) def hi(".char_indices());
