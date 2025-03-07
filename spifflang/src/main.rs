@@ -1,5 +1,12 @@
 pub type Index = usize;
 
+#[derive(Debug)]
+pub struct Char {
+    pub index: Index,
+    pub value: char,
+    pub is_escaped: bool,
+}
+
 mod und { // Finished
     use super::*;
 
@@ -7,13 +14,6 @@ mod und { // Finished
     pub struct Text {
         pub first: Char,
         pub rest: Vec<Char>,
-    }
-
-    #[derive(Debug)]
-    pub struct Char {
-        pub index: Index,
-        pub value: char,
-        pub is_escaped: bool,
     }
 
     #[derive(Debug)]
@@ -155,42 +155,31 @@ mod pon { // Bugged, see main() `print` outputs
 
     #[derive(Debug)]
     pub struct Word {
-        pub first: char,
-        pub rest: String,
-    }
-
-    struct FirstChar {
-        value: char,
-        index: Index,
+        pub first: Char,
+        pub rest: Vec<Char>,
     }
 
     struct MaybeWord {
-        first: Option<FirstChar>,
-        rest: String,
+        first: Option<Char>,
+        rest: Vec<Char>,
     }
     impl MaybeWord {
         fn new() -> Self {
             Self {
                 first: None,
-                rest: String::new(),
+                rest: Vec::new(),
             }
         }
     }
 
     #[derive(Debug)]
     pub struct Name {
-        pub index: Index,
         pub first: Word,
         pub rest: Vec<Word>,
     }
 
-    struct FirstWord {
-        value: Word,
-        index: Index,
-    }
-
     struct MaybeName {
-        first: Option<FirstWord>,
+        first: Option<Word>,
         rest: Vec<Word>,
     }
 
@@ -200,69 +189,55 @@ mod pon { // Bugged, see main() `print` outputs
         Name(Name),
     }
 
-    fn is_word_boundary(c: &und::Char) -> bool {
-        c.value.is_whitespace() && !c.is_escaped
-    }
-
     pub fn convert(und: und::Group) -> Vec<Node> {
         let mut nodes = Vec::new();
         for node in und.contents.into_iter() {
             match node {
                 und::Node::Group(group) => nodes.push(Node::Group(group)),
                 und::Node::Text(text) => {
-                    let mut rest = text.rest.into_iter();
+                    let mut current_char = Some(text.first);
+                    let mut text_rest = text.rest.into_iter();
                     let mut name = MaybeName {
                         first: None,
                         rest: Vec::new(),
                     };
-                    let mut word = MaybeWord::new();
-                    let mut current_char = text.first;
+                    let mut current_word = MaybeWord::new();
                     loop {
-                        if !is_word_boundary(&current_char) {
-                            if word.first.is_none() {
-                                word.first = Some(FirstChar {
-                                    value: current_char.value,
-                                    index: current_char.index,
-                                });
-                            } else {
-                                word.rest.push(current_char.value);
-                            }
-                        }
-                        let mut next_char = rest.next();
-                        let ended = next_char.is_none();
-                        if is_word_boundary(&current_char) {
-                            next_char = None;
-                        }
-                        match next_char {
-                            None => {
-                                if let Some(first) = word.first {
-                                    let full_word = Word {
-                                        first: first.value,
-                                        rest: word.rest,
-                                    };
-                                    word = MaybeWord::new();
-                                    if name.first.is_none() {
-                                        name.first = Some(FirstWord {
-                                            index: first.index,
-                                            value: full_word,
-                                        });
+                        let (is_word_boundary, is_text_ended) = match current_char {
+                            Some(c) => {
+                                let is_word_boundary = !c.is_escaped && c.value.is_whitespace();
+                                if !is_word_boundary {
+                                    if let None = current_word.first {
+                                        current_word.first = Some(c);
                                     } else {
-                                        name.rest.push(full_word);
+                                        current_word.rest.push(c);
                                     }
                                 }
-                                if ended {
-                                    break;
+                                (is_word_boundary, false)
+                            },
+                            None => (true, true),
+                        };
+                        if is_word_boundary {
+                            let word = std::mem::replace(&mut current_word, MaybeWord::new());
+                            if let Some(first) = word.first {
+                                let word = Word {
+                                    first,
+                                    rest: word.rest,
+                                };
+                                if let None = name.first {
+                                    name.first = Some(word);
+                                } else {
+                                    name.rest.push(word);
                                 }
                             }
-                            Some(next_char) => current_char = next_char,
+                            if is_text_ended {
+                                break;
+                            }
                         }
+                        current_char = text_rest.next();
                     }
                     if let Some(first) = name.first {
-                        nodes.push(Node::Name(Name {
-                            first: first.value,
-                            rest: name.rest,
-                            index: first.index,
-                        }));
+                        nodes.push(Node::Name(Name { first, rest: name.rest }));
                     }
                 }
             }
@@ -274,7 +249,7 @@ mod pon { // Bugged, see main() `print` outputs
 mod spiff {}
 
 fn main() {
-    let und = und::parse("test (ab\\c) \\(\\ ) def hi".char_indices());
+    let und = und::parse(r"test (ab\c) \(\ ) def hi(".char_indices());
     dbg!(&und.root);
     let pon = pon::convert(und.root);
     dbg!(&und.escape_at_end);
