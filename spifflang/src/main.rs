@@ -152,7 +152,7 @@ mod und {
 }
 
 mod pon {
-    // Bugged, see main() `print` outputs
+    // Finished
     use super::*;
 
     #[derive(Debug)]
