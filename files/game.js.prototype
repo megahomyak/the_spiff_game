@@ -7,8 +7,11 @@ two maps: variables (mut){str:str} and functions (const){str:callable(str)}. The
 .loc(test1)
 .render(
 .if(varname).then(prog)
+#otherwise, protected by compiler:# if (varname (prog))
 .else(prog)
+#otherwise, protected by compiler:# else (prog)
 .while(varname).do(prog)
+#otherwise, protected by compiler:# while (varname (prog))
 .bg(somebg.png)
 .name(varname).setstr(str)
 name (varname) setstr (str) # May be protected by compiler
